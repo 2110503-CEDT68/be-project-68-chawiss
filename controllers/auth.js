@@ -34,13 +34,13 @@ const sendTokenResponse = (user, statusCode, res) => {
 // @access    Public
 exports.register = async (req, res, next) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, telephoneNumber, email, password } = req.body;
     // Create user
     const user = await User.create({
       name,
+      telephoneNumber,
       email,
-      password,
-      role
+      password
     });
     sendTokenResponse(user,200,res);
   } catch (err) {
@@ -85,6 +85,15 @@ exports.login = async (req, res, next) => {
   }
   sendTokenResponse(user,200,res);
 
+};
+
+// @desc    Logout user (client should delete token)
+// @route   GET /api/v1/auth/logout
+exports.logout = async (req, res) => {
+  return res.status(200).json({
+    success: true,
+    message: 'Logged out'
+  });
 };
 
 // At the end of file
