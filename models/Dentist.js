@@ -1,48 +1,34 @@
 const mongoose = require('mongoose');
 
-const HospitalSchema = new mongoose.Schema({
+const DentistSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, 'Please add a name'],
-    unique: true,
+    required: [true, 'Please add dentist name'],
     trim: true,
-    maxlength: [50, 'Name can not be more than 50 characters']
+    maxlength: [100, 'Name cannot be more than 100 characters']
   },
-  address: {
+  experienceYears: {
+    type: Number,
+    required: [true, 'Please add years of experience'],
+    min: [0, 'Experience cannot be negative']
+  },
+  expertise: {
     type: String,
-    required: [true, 'Please add an address']
-  },
-  district: {
-    type: String,
-    required: [true, 'Please add a district']
-  },
-  province: {
-    type: String,
-    required: [true, 'Please add a province']
-  },
-  postalcode: {
-    type: String,
-    required: [true, 'Please add a postalcode'],
-    maxlength: [5, 'Postal Code can not be more than 5 digits']
-  },
-  tel: {
-    type: String
-  },
-  region: {
-    type: String,
-    required: [true, 'Please add a region']
+    required: [true, 'Please add area of expertise'],
+    trim: true
   }
-},{
+}, {
+  timestamps: true,
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
 
-// Reverse populate with virtuals
-HospitalSchema.virtual('appointments', {
-  ref: 'Appointment',
+// Reverse populate with bookings
+DentistSchema.virtual('bookings', {
+  ref: 'Booking',
   localField: '_id',
-  foreignField: 'hospital',
+  foreignField: 'dentist',
   justOne: false
 });
 
-module.exports = mongoose.model('Hospital', HospitalSchema);
+module.exports = mongoose.model('Dentist', DentistSchema);
