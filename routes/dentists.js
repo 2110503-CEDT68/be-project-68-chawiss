@@ -1,19 +1,26 @@
 const express = require('express');
+
 const {
-    getHospitals,
-    getHospital,
-    createHospital,
-    updateHospital,
-    deleteHospital
-} = require('../controllers/hospitals')
+  getDentists,
+  getDentist,
+  createDentist,
+  updateDentist,
+  deleteDentist
+} = require('../controllers/dentists');
 
 const appointmentRouter = require('./appointments');
+
 const router = express.Router();
-const {protect, authorize} = require('../middleware/auth')
 
-router.use('/:hospitalId/appointments/',appointmentRouter);
-router.route('/').get(getHospitals).post(protect, authorize('admin'), createHospital);
-router.route('/:id').get(getHospital).put(protect, authorize('admin'), updateHospital).delete(protect, authorize('admin'), deleteHospital);
+const { protect, authorize } = require('../middleware/auth');
 
+// || /api/v1/dentists/:dentistId/appointments
+router.use('/:dentistId/appointments', appointmentRouter);
 
-module.exports=router;
+// || /api/v1/dentists
+router.route('/').get(getDentists).post(protect, authorize('admin'), createDentist);
+
+// || /api/v1/dentists/:id
+router.route('/:id').get(getDentist).put(protect, authorize('admin'), updateDentist).delete(protect, authorize('admin'), deleteDentist);
+
+module.exports = router;
