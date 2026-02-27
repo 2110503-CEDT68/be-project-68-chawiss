@@ -24,8 +24,8 @@ const DentistSchema = new mongoose.Schema({
 });
 
 // Reverse populate with bookings
-DentistSchema.virtual('appointments', {
-  ref: 'Appointment',
+DentistSchema.virtual('bookings', {
+  ref: 'Booking',
   localField: '_id',
   foreignField: 'dentist',
   justOne: false

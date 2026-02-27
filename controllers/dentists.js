@@ -1,5 +1,5 @@
 const Dentist = require('../models/Dentist');
-const Appointment = require('../models/Appointment.js');
+const Booking =require('../models/Booking')
 
 //@desc      Get all dentists
 //@route     GET /api/v1/dentists
@@ -21,7 +21,7 @@ exports.getDentists = async (req, res, next) => {
   let queryStr = JSON.stringify(reqQuery);
   queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
 
-  query = Dentist.find(JSON.parse(queryStr)).populate('appointments');
+  query = Dentist.find(JSON.parse(queryStr)).populate('bookings');
 
   // Select Fields
   if (req.query.select) {
@@ -54,26 +54,24 @@ exports.getDentists = async (req, res, next) => {
     const pagination = {};
 
     if (endIndex < total) {
-      pagination.next = {
-        page: page + 1,
-        limit
-      };
+      pagination.next = { page: page + 1, limit };
     }
 
     if (startIndex > 0) {
-      pagination.prev = {
-        page: page - 1,
-        limit
-      };
+      pagination.prev = { page: page - 1, limit };
     }
 
     res.status(200).json({
       success: true,
       count: dentists.length,
+      pagination, // อย่าลืมใส่ pagination เข้าไปใน response ด้วยครับ
       data: dentists
     });
 
   } catch (err) {
+    console.log("--- ERROR DETECTED ---");
+    console.log(err); 
+    console.log("----------------------");
     res.status(400).json({ success: false });
   }
 };
@@ -84,6 +82,7 @@ exports.getDentists = async (req, res, next) => {
 //@access    Public
 exports.getDentist = async (req, res, next) => {
   try {
+    // แนะนำให้ใส่ .populate('bookings') ที่นี่ด้วยถ้าอยากเห็นว่าหมอคนนี้มีใครจองบ้าง
     const dentist = await Dentist.findById(req.params.id);
 
     if (!dentist) {
@@ -103,20 +102,24 @@ exports.getDentist = async (req, res, next) => {
 
 //@desc      Create a dentist
 //@route     POST /api/v1/dentists
-//@access    Private
+//@access    Private (Admin)
 exports.createDentist = async (req, res, next) => {
-  const dentist = await Dentist.create(req.body);
+  try {
+    const dentist = await Dentist.create(req.body);
 
-  res.status(201).json({
-    success: true,
-    data: dentist
-  });
+    res.status(201).json({
+      success: true,
+      data: dentist
+    });
+  } catch (err) {
+    res.status(400).json({ success: false, message: "Cannot create Dentist" });
+  }
 };
 
 
 //@desc      Update single dentist
 //@route     PUT /api/v1/dentists/:id
-//@access    Private
+//@access    Private (Admin)
 exports.updateDentist = async (req, res, next) => {
   try {
     const dentist = await Dentist.findByIdAndUpdate(
@@ -145,7 +148,7 @@ exports.updateDentist = async (req, res, next) => {
 
 //@desc      Delete single dentist
 //@route     DELETE /api/v1/dentists/:id
-//@access    Private
+//@access    Private (Admin)
 exports.deleteDentist = async (req, res, next) => {
   try {
     const dentist = await Dentist.findById(req.params.id);
@@ -154,7 +157,9 @@ exports.deleteDentist = async (req, res, next) => {
       return res.status(400).json({ success: false });
     }
 
-    await Appointment.deleteMany({ dentist: req.params.id });
+    // 3. เมื่อลบหมอ ให้ลบการจอง (Bookings) ทั้งหมดที่เกี่ยวข้องกับหมอคนนี้ด้วย (Cascade Delete)
+    await Booking.deleteMany({ dentist: req.params.id });
+    
     await Dentist.deleteOne({ _id: req.params.id });
 
     res.status(200).json({
