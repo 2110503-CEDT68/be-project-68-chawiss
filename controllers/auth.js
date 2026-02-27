@@ -97,6 +97,35 @@ exports.logout = async (req, res) => {
   });
 };
 
+// @desc      Update current logged in user profile
+// @route     PUT /api/v1/auth/me
+// @access    Private
+exports.updateMe = async (req, res) => {
+  try {
+    // อนุญาตให้แก้เฉพาะ 2 field นี้ (กัน user แก้ role/password เอง)
+    const fieldsToUpdate = {
+      name: req.body.name,
+      telephoneNumber: req.body.telephoneNumber
+    };
+
+    // ลบ key ที่เป็น undefined ออก (ถ้าส่งมาไม่ครบจะได้ไม่ทับค่าเดิม)
+    Object.keys(fieldsToUpdate).forEach((key) => {
+      if (fieldsToUpdate[key] === undefined) delete fieldsToUpdate[key];
+    });
+
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      fieldsToUpdate,
+      { new: true, runValidators: true }
+    );
+
+    res.status(200).json({ success: true, data: user });
+  } catch (err) {
+    console.log(err.stack);
+    res.status(400).json({ success: false, message: 'Update profile failed' });
+  }
+};
+
 // At the end of file
 
 // @desc      Get current logged in user
