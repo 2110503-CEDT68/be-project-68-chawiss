@@ -8,14 +8,14 @@ const {
   deleteDentist
 } = require('../controllers/dentists');
 
-const appointmentRouter = require('./appointments');
+const bookingRouter = require('./bookings');
 
 const router = express.Router();
 
 const { protect, authorize } = require('../middleware/auth');
 
 // || /api/v1/dentists/:dentistId/appointments
-router.use('/:dentistId/appointments', appointmentRouter);
+router.use('/:dentistId/bookings', bookingRouter);
 
 // || /api/v1/dentists
 router.route('/').get(getDentists).post(protect, authorize('admin'), createDentist);

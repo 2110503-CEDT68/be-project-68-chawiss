@@ -83,7 +83,8 @@ exports.login = async (req, res, next) => {
       msg: 'Invalid credentials'
     });
   }
-  sendTokenResponse(user,200,res);
+  sendTokenResponse(user,200,res
+  );
 
 };
 
