@@ -11,19 +11,19 @@ exports.getBookings = async (req, res, next) => {
   if (req.user.role !== "admin") {
     query = Booking.find({ user: req.user.id }).populate({
       path: "dentist",
-      select: "name yearsOfExperience areaOfExpertise",
+      select: "name experienceYears expertise",
     });
   } else {
     // Admin ดูตาม dentistId หรือดูทั้งหมด
     if (req.params.dentistId) {
       query = Booking.find({ dentist: req.params.dentistId }).populate({
         path: "dentist",
-        select: "name yearsOfExperience areaOfExpertise",
+        select: "name experienceYears expertise",
       });
     } else {
       query = Booking.find().populate({
         path: "dentist",
-        select: "name yearsOfExperience areaOfExpertise",
+        select: "name experienceYears expertise",
       });
     }
   }
@@ -50,7 +50,7 @@ exports.getBooking = async (req, res, next) => {
   try {
     const booking = await Booking.findById(req.params.id).populate({
       path: "dentist",
-      select: "name yearsOfExperience areaOfExpertise",
+      select: "name experienceYears expertise",
     });
 
     if (!booking) {
