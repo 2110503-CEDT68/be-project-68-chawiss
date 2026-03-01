@@ -42,8 +42,15 @@ const UserSchema = new mongoose.Schema({
 
 // Encrypt password using bcrypt
 UserSchema.pre('save', async function(next) {
+  // ถ้าไม่ได้แก้ password ไม่ต้อง hash ใหม่
+  if (!this.isModified('password')) {
+    return next();
+  }
+
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
+
+  next();
 });
 
 //Sign JWT and return
