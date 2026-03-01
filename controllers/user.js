@@ -54,3 +54,38 @@ exports.getUser = async (req, res, next) => {
         res.status(400).json({ success: false, error: err.message });
     }
 };
+// @desc    Change password
+// @route   PUT /api/v1/users/change-password
+// @access  Private
+exports.changePassword = async (req, res, next) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+
+        // ดึง user จาก token (middleware auth ต้อง set req.user.id ไว้ก่อน)
+        const user = await User.findById(req.user.id).select('+password');
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'ไม่พบผู้ใช้งาน' });
+        }
+
+        // ตรวจสอบรหัสผ่านเดิม
+        const isMatch = await user.matchPassword(currentPassword);
+
+        if (!isMatch) {
+            return res.status(401).json({ success: false, message: 'รหัสผ่านเดิมไม่ถูกต้อง' });
+        }
+
+        // ตั้งรหัสผ่านใหม่
+        user.password = newPassword;
+
+        await user.save(); // pre('save') จะ hash ให้เอง
+
+        res.status(200).json({
+            success: true,
+            message: 'เปลี่ยนรหัสผ่านสำเร็จ'
+        });
+
+    } catch (err) {
+        res.status(400).json({ success: false, error: err.message });
+    }
+};
