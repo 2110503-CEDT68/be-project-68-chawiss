@@ -13,6 +13,7 @@ const connectDB = require('./config/db.js');
 const dentists = require('./routes/dentists');
 const auth = require('./routes/auth');
 const bookings = require('./routes/bookings');
+const users = require('./routes/users');
 
 connectDB();
 
@@ -27,6 +28,7 @@ app.use(cookieParser());
 app.use('/api/v1/dentists', dentists);
 app.use('/api/v1/auth', auth);
 app.use('/api/v1/bookings', bookings); // เปลี่ยน Path จาก appointments เป็น bookings
+app.use('/api/v1/users', users);
 
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {

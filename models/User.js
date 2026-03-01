@@ -62,4 +62,16 @@ UserSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
+// Reverse populate with virtuals
+UserSchema.virtual('bookings', {
+    ref: 'Booking',          // อ้างอิงไปที่ Model Booking
+    localField: '_id',       // ใช้ ID ของ User
+    foreignField: 'user',    // ไปเทียบกับ Field 'user' ใน Model Booking
+    justOne: false
+});
+
+// ทำให้ JSON output แสดงผล Virtual fields ด้วย
+UserSchema.set('toJSON', { virtuals: true });
+UserSchema.set('toObject', { virtuals: true });
+
 module.exports = mongoose.model('User', UserSchema);
