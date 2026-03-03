@@ -69,13 +69,13 @@ UserSchema.methods.matchPassword = async function (enteredPassword) {
 
 // Reverse populate with virtuals
 UserSchema.virtual('bookings', {
-    ref: 'Booking',          // อ้างอิงไปที่ Model Booking
-    localField: '_id',       // ใช้ ID ของ User
-    foreignField: 'user',    // ไปเทียบกับ Field 'user' ใน Model Booking
+    ref: 'Booking',       
+    localField: '_id',   
+    foreignField: 'user',  
     justOne: false
 });
 
-// ทำให้ JSON output แสดงผล Virtual fields ด้วย
+// ทำให้ JSON output แสดงผล Virtual fields
 UserSchema.set('toJSON', { virtuals: true });
 UserSchema.set('toObject', { virtuals: true });
 

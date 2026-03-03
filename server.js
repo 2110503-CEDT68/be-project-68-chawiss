@@ -5,10 +5,8 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
 
-// ต้องโหลด Config ก่อนที่จะ require ไฟล์อื่นๆ ที่มีการใช้ process.env
 dotenv.config({ path: './config/config.env' });
 
-// ค่อยตามด้วยการ require ไฟล์ที่ต้องใช้ค่าจาก config
 const connectDB = require('./config/db.js');
 const dentists = require('./routes/dentists');
 const auth = require('./routes/auth');
@@ -24,10 +22,10 @@ app.set('query parser', 'extended');
 app.use(express.json());
 app.use(cookieParser());
 
-// 2. Mount routers
+// Mount routers
 app.use('/api/v1/dentists', dentists);
 app.use('/api/v1/auth', auth);
-app.use('/api/v1/bookings', bookings); // เปลี่ยน Path จาก appointments เป็น bookings
+app.use('/api/v1/bookings', bookings);
 app.use('/api/v1/users', users);
 
 const PORT = process.env.PORT || 5000;

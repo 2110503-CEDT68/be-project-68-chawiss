@@ -7,14 +7,14 @@ const Dentist = require("../models/Dentist");
 exports.getBookings = async (req, res, next) => {
   let query;
 
-  // 1. Requirement: User ดูได้เฉพาะของตัวเอง, Admin ดูได้ทั้งหมด (ข้อ 4 & 7)
+  // 1. Requirement: User ดูได้เฉพาะของตัวเอง, Admin ดูได้ทั้งหมด
   if (req.user.role !== "admin") {
     query = Booking.find({ user: req.user.id }).populate({
       path: "dentist",
       select: "name experienceYears expertise",
     });
   } else {
-    // Admin ดูตาม dentistId หรือดูทั้งหมด
+    // Admin see all
     if (req.params.dentistId) {
       query = Booking.find({ dentist: req.params.dentistId }).populate({
         path: "dentist",
@@ -54,22 +54,18 @@ exports.getBooking = async (req, res, next) => {
     });
 
     if (!booking) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: `No booking with the id of ${req.params.id}`,
-        });
+      return res.status(404).json({
+        success: false,
+        message: `No booking with the id of ${req.params.id}`,
+      });
     }
 
-    // เช็คสิทธิ์: ถ้าไม่ใช่เจ้าของและไม่ใช่ admin ห้ามดู (ข้อ 4)
+    // เช็คสิทธิ์: ถ้าไม่ใช่เจ้าของและไม่ใช่ admin ห้ามดู ==================================== เพิ่มจาก a-7
     if (booking.user.toString() !== req.user.id && req.user.role !== "admin") {
-      return res
-        .status(401)
-        .json({
-          success: false,
-          message: "Not authorized to view this booking",
-        });
+      return res.status(401).json({
+        success: false,
+        message: "Not authorized to view this booking",
+      });
     }
 
     res.status(200).json({ success: true, data: booking });
@@ -91,16 +87,14 @@ exports.addBooking = async (req, res, next) => {
 
     const dentist = await Dentist.findById(req.params.dentistId);
     if (!dentist) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: `No dentist with the id of ${req.params.dentistId}`,
-        });
+      return res.status(404).json({
+        success: false,
+        message: `No dentist with the id of ${req.params.dentistId}`,
+      });
     }
 
-    // 2. Requirement: User จองได้เพียง "ONE session" เท่านั้น (ข้อ 3)
-    const existedBooking = await Booking.findOne({ user: req.user.id });
+    // 2. Requirement: User จองได้เพียง "ONE session" เท่านั้น
+    const existedBooking = await Booking.findOne({ user: req.user.id }); //เปลี่ยนจาก find() -> findOne()
 
     if (existedBooking && req.user.role !== "admin") {
       return res.status(400).json({
@@ -127,15 +121,13 @@ exports.updateBooking = async (req, res, next) => {
     let booking = await Booking.findById(req.params.id);
 
     if (!booking) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: `No booking with the id of ${req.params.id}`,
-        });
+      return res.status(404).json({
+        success: false,
+        message: `No booking with the id of ${req.params.id}`,
+      });
     }
 
-    // 3. Requirement: เช็คสิทธิ์ความเป็นเจ้าของ หรือ Admin (ข้อ 5 & 8)
+    // 3. Requirement: เช็คสิทธิ์ความเป็นเจ้าของ หรือ Admin
     if (booking.user.toString() !== req.user.id && req.user.role !== "admin") {
       return res.status(401).json({
         success: false,
@@ -143,11 +135,7 @@ exports.updateBooking = async (req, res, next) => {
       });
     }
 
-    //ลบ userid ใน body ก่อน update
-    const updateData = { ...req.body };
-    delete updateData.user;
-
-    booking = await Booking.findByIdAndUpdate(req.params.id, updateData, {
+    booking = await Booking.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
     });
@@ -169,15 +157,13 @@ exports.deleteBooking = async (req, res, next) => {
     const booking = await Booking.findById(req.params.id);
 
     if (!booking) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: `No booking with the id of ${req.params.id}`,
-        });
+      return res.status(404).json({
+        success: false,
+        message: `No booking with the id of ${req.params.id}`,
+      });
     }
 
-    // 4. Requirement: เช็คสิทธิ์ความเป็นเจ้าของ หรือ Admin (ข้อ 6 & 9)
+    // 4. Requirement: เช็คสิทธิ์ความเป็นเจ้าของ หรือ Admin
     if (booking.user.toString() !== req.user.id && req.user.role !== "admin") {
       return res.status(401).json({
         success: false,

@@ -7,12 +7,12 @@ const BookingSchema = new mongoose.Schema({
     },
     user: {
         type: mongoose.Schema.ObjectId,
-        ref: 'User', // เชื่อมไปหาคนจอง
+        ref: 'User',
         required: true
     },
     dentist: {
         type: mongoose.Schema.ObjectId,
-        ref: 'Dentist', // เชื่อมไปหาหมอที่เลือก
+        ref: 'Dentist',
         required: true
     },
     createdAt: {
